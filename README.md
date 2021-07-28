@@ -10,8 +10,9 @@ DNS resolver library.
 We want to build with debug symbols so that we can step through the code:
 ```console
 $ mkdir build
-$ cmake -DCMAKE_BUILD_TYPE=Debug ..
+$ cmake -DCMAKE_BUILD_TYPE=Debug -DCARES_BUILD_TESTS=True ..
 $ make -j8
+$ make -j8 test
 ```
 
 ### Linking with c-ares
