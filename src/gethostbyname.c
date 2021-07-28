@@ -11,11 +11,20 @@
 #include <unistd.h>
 
 static void state_cb(void *data, int s, int read, int write) {
-  printf("Change state fd %d read:%d write:%d\n", s, read, write);
+  if (read) {
+    printf("Change state fd %d to readable\n", s);
+  } else {
+    printf("Change state fd %d to writable\n", s);
+  }
 }
 
 static int config_cb(ares_socket_t socket_fd, int type, void* data) {
-  printf("Config callback: fd %d , type:%d %d\n", socket_fd, type);
+  printf("Config callback (socket created but not connected to remote server): fd:%d , type:%d\n", socket_fd, type);
+  return ARES_SUCCESS;
+}
+
+static int socket_cb(ares_socket_t socket_fd, int type, void* data) {
+  printf("Socket callback (socket now connected to remote server): fd:%d , type:%d\n", socket_fd, type);
   return ARES_SUCCESS;
 }
 
@@ -28,7 +37,6 @@ static void callback(void *arg, int status, int timeouts, struct hostent *host) 
   printf("Found address name %s\n", host->h_name);
   char ip[INET6_ADDRSTRLEN];
   int i = 0;
-
   for (i = 0; host->h_addr_list[i]; ++i) {
     inet_ntop(host->h_addrtype, host->h_addr_list[i], ip, sizeof(ip));
     printf("%s\n", ip);
@@ -74,12 +82,12 @@ int main(void) {
     return 1;
   }
   ares_set_socket_configure_callback(channel, config_cb, NULL);
+  ares_set_socket_callback(channel, socket_cb, NULL);
 
   ares_gethostbyname(channel, "google.com", AF_INET, callback, NULL);
   //ares_gethostbyname(channel, "google.com", AF_INET6, callback, NULL);
   wait_ares(channel);
   ares_destroy(channel);
   ares_library_cleanup();
-  printf("fin\n");
   return 0;
 }
