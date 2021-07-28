@@ -28,18 +28,18 @@ static int socket_cb(ares_socket_t socket_fd, int type, void* data) {
   return ARES_SUCCESS;
 }
 
-static void callback(void *arg, int status, int timeouts, struct hostent *host) {
+static void host_callback(void *arg, int status, int timeouts, struct hostent *host) {
+  printf("Host callback host: %s\n", host->h_name);
   if(!host || status != ARES_SUCCESS){
     printf("Failed to lookup %s\n", ares_strerror(status));
     return;
   }
 
-  printf("Found address name %s\n", host->h_name);
   char ip[INET6_ADDRSTRLEN];
   int i = 0;
   for (i = 0; host->h_addr_list[i]; ++i) {
     inet_ntop(host->h_addrtype, host->h_addr_list[i], ip, sizeof(ip));
-    printf("%s\n", ip);
+    printf("ip: %s\n", ip);
   }
 }
 
@@ -84,8 +84,7 @@ int main(void) {
   ares_set_socket_configure_callback(channel, config_cb, NULL);
   ares_set_socket_callback(channel, socket_cb, NULL);
 
-  ares_gethostbyname(channel, "google.com", AF_INET, callback, NULL);
-  //ares_gethostbyname(channel, "google.com", AF_INET6, callback, NULL);
+  ares_gethostbyname(channel, "google.com", AF_INET, host_callback, NULL);
   wait_ares(channel);
   ares_destroy(channel);
   ares_library_cleanup();
