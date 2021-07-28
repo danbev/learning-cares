@@ -14,6 +14,11 @@ static void state_cb(void *data, int s, int read, int write) {
   printf("Change state fd %d read:%d write:%d\n", s, read, write);
 }
 
+static int config_cb(ares_socket_t socket_fd, int type, void* data) {
+  printf("Config callback: fd %d , type:%d %d\n", socket_fd, type);
+  return ARES_SUCCESS;
+}
+
 static void callback(void *arg, int status, int timeouts, struct hostent *host) {
   if(!host || status != ARES_SUCCESS){
     printf("Failed to lookup %s\n", ares_strerror(status));
@@ -68,6 +73,7 @@ int main(void) {
     printf("ares_init_options: %s\n", ares_strerror(status));
     return 1;
   }
+  ares_set_socket_configure_callback(channel, config_cb, NULL);
 
   ares_gethostbyname(channel, "google.com", AF_INET, callback, NULL);
   //ares_gethostbyname(channel, "google.com", AF_INET6, callback, NULL);
