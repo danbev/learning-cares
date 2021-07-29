@@ -132,3 +132,24 @@ Record/AAAA Record.
 These records are used to specify which Certificate Authorities (CA) are allowed
 to issue certificates for a domain.
 
+
+#### Fully Qualified Domain Name (FQDN)
+This is a name ends with a `.` it will be considered fully qualified and no
+local search will be done.
+
+#### Hostname vs Domain name
+The POSIX Standard defines the data format of these host names as a
+null-terminated C-String containing a "hostname" or "nodename", which are
+typically expected by developers and defined by [RFC952](https://datatracker.ietf.org/doc/html/rfc952)
+and RFC1123 to only contain alphanumeric characters (a-z,A-Z,0-9), hyphens ("-")
+and periods (".") to split labels. This creates a mismatch of allowed characters
+between "hostnames" and "domain names" as defined by the DNS standard which
+defines "domain names" as a series of "text labels" which are textually
+represented by concatenating all "text labels" and joining them together with
+period signs.
+
+However, "text labels" can contain any octet value, even zero-bytes ("\x00") and
+period signs (".") and recursive DNS resolvers are required by the DNS standard
+to support any of these characters in DNS records, thus not implementing any
+sanitiy checks on domain names.
+
