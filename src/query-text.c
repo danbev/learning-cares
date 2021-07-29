@@ -24,6 +24,7 @@ static void query_callback(void *arg, int status, int timeouts,
     return;
   }
   printf("query_callback Parsed host: %s\n", host->h_name);
+  ares_free_hostent(host);
 }
 
 static void wait_ares(ares_channel channel) {
