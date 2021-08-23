@@ -6,6 +6,10 @@ c-ares was originally a fork of ares by libcurl and named c-ares (for curl and
 not for the C language which what I initially thought). It is an asynchronous
 DNS resolver library.
 
+One thing that might be obvious to some but was not to me is that a DNS resolver
+can be used for more than looking up a host address, it can also be used to
+get mail information and there are a number of other request/quieries possible.
+
 ### Building c-ares
 We want to build with debug symbols so that we can step through the code:
 ```console
@@ -44,6 +48,19 @@ using ares_library_init which can be found in
 }
 ```
 
+### Channel
+```c
+typedef struct ares_channeldata *ares_channel;
+```
+And the definition can be found in `c-ares/src/lib/ares_private.h`:
+```c
+struct ares_channeldata {
+  ...
+  ares_sock_state_cb sock_state_cb;
+  ares_sock_create_callback sock_create_cb;
+  ares_sock_config_callback sock_config_cb;
+};
+```
 
 ### Project configuration
 Generate, or regenerate the ctags file:
@@ -152,4 +169,21 @@ However, "text labels" can contain any octet value, even zero-bytes ("\x00") and
 period signs (".") and recursive DNS resolvers are required by the DNS standard
 to support any of these characters in DNS records, thus not implementing any
 sanitiy checks on domain names.
+
+
+### DNS Tunneling
+Is an attack where DNS requests are routed to the attackers server providing
+them with a covert command and control channel (C2) and a way to exfiltrate
+data (extracting/sending out data I think).
+
+An attacher could register a domain and set up a DNS server as the authorative
+server for this domain. A program on the compromised client sends DNS queries
+to a subdomain of the registered domain. The attacker can configure the DNS
+server to route request to his machine for this subdomain.
+The DNS server can now send responses that are malicious which can include data
+and the nice thing here is that this will be allowed to be sent across the
+network security perimiters like
+firewalls.
+
+
 
